@@ -20,3 +20,18 @@ def client_task(name, value):
     finally:
         if client_socket:
             client_socket.close()
+
+def main():
+    clients = []
+    for i in range(3):
+        t = threading.Thread(target=client_task, args=(f"Clinet-{i+1}", ))
+        clients.append(t)
+        t.start()
+
+        time.sleep()
+    
+    for t in clinets:
+        t.join()
+
+if __name__ == "__main__":
+    main()
