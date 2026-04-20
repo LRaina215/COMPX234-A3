@@ -40,6 +40,22 @@ def start_server():
     finally:
         server_socket.close()
 
+def response_message(message):
+    if message[0] == "R":
+        123
+        return 123
+
+    elif message[0] == "G":
+        123
+        return 123
+
+    elif message[1] == "P":
+        123
+        return 123
+    else:
+        return "Error"
+
+
 if __name__ == "__main__":
     start_server()
 

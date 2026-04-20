@@ -21,16 +21,33 @@ def client_task(name, value):
         if client_socket:
             client_socket.close()
 
+def READ(k):
+    123
+    return 123
+
+def GET(k):
+    123
+    return 123
+
+def PUT(k, v):
+    123
+    return 123
+
 def main():
     clients = []
-    for i in range(3):
-        t = threading.Thread(target=client_task, args=(f"Clinet-{i+1}", ))
-        clients.append(t)
+    i = 0
+    t = threading.Thread(target=client_task, args=(f"Clinet-{i+1}",READ("abcd")))
+    clients.append(t)
+    t = threading.Thread(target=client_task, args=(f"Clinet-{i+1}",GET("abcd")))
+    clients.append(t)
+    t = threading.Thread(target=client_task, args=(f"Clinet-{i+1}",PUT("abcd")))
+    clients.append(t)
+
+    for t in clients:
         t.start()
 
         time.sleep()
-    
-    for t in clinets:
+
         t.join()
 
 if __name__ == "__main__":
