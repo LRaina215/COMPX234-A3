@@ -12,7 +12,11 @@ def client_task(name, port, value):
         message = value
         client_socket.sendall(message.encode('utf-8'))
 
-        response = client_socket.recv(1024).decode('utf-8')
+        response = recv_message(client_socket)
+        if response is None:
+            print("Server closed connection.")
+            return 
+        
         print(f"Reveive: {response}")
 
     except Exception as e:
@@ -71,7 +75,34 @@ def file_command2protocol_message(line):
     
     return message
          
+# use to deriver the data length and receive correct and valid message from Server 
+def recv_exact(sock, n):
+    data = b""
 
+    while len(data) < n: # we need n bytes data, if not enouth, continue receiving until has receive n bytes
+        chunk = sock.recv(n - len(data))
+
+        if not chunk:
+            return None
+        
+        data += chunk
+
+    return data
+
+def recv_message(sock):
+    header = recv_exact(sock, 3)
+    
+    if header is None:
+        return None
+    
+    totoal_length = int(header.decode('utf-8')) # Convert the length into integer
+
+    rest  = recv_exact(sock, totoal_length - 3) # Receive data (length is `total_length`)
+
+    if rest is None:
+        return None
+    
+    return (header + rest).decode('utf-8')
 
 def main():
     if len(sys.argv) != 4:
