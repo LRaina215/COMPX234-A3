@@ -1,6 +1,8 @@
 import socket
 import threading
 import sys
+tuple_space = {}
+lock = threading.Semaphore(1)
 
 def handle_client(client_socket, addr):
     print(f"New client connected from {addr}")
@@ -11,7 +13,9 @@ def handle_client(client_socket, addr):
 
         command, key, value = process_message(message)
         print(f"Reveived command from Client = {command}, key={key}, value={value}")
-        # response = response_message(command)
+        
+        response = response_message(command, key, value)
+        print(f"Response body: {response}")
         client_socket.sendall(response.encode('utf-8'))
 
     finally:
@@ -43,35 +47,55 @@ def start_server():
     finally:
         server_socket.close()
 
-# def response_message(message):
-#     if message[0] == "R":
-#         123
-#         return 123
+def response_message(command, key, value):
+    lock.acquire()
 
-#     elif message[0] == "G":
-#         123
-#         return 123
+    if command[0] == "R":
+        if key in tuple_space:
+            stored_value = tuple_space[key]
+            lock.release()
+            return f"OK {key}, {stored_value} read"
+        else:
+            lock.release()
+            return f"ERR {key} doesn't exist"
 
-#     elif message[1] == "P":
-#         123
-#         return 123
-#     else:
-#         return "Error"
+    elif command[0] == "G":
+        if key in tuple_space:
+            stored_value = tuple_space[key]
+            del tuple_space[key] # delete key in space
+            lock.release()
+            return f"OK ({key}, {stored_value}) removed"
+        else:
+            lock.release()
+            return f"ERR {key} does not exist"
 
+    elif command[1] == "P":
+        if key in tuple_space:
+            lock.release()
+            return f"ERR {key} already exists"
+        else:
+            tuple_space[key] = value
+            lock.release()
+            return f"OK ({key}, {value}) added"
+
+    else:
+        lock.release()
+        return f"ERR invalid command"
+    
 def process_message(message):
     body = message[4:]
 
     command = body[0]
 
-    if message[0] == "R":
+    if body[0] == "R":
         key = body[2:]
         return command, key, None
 
-    elif message[0] == "G":
+    elif body[0] == "G":
         key = body[2:]
         return command, key, None
 
-    elif message[0] == "P":
+    elif body[0] == "P":
         parts = body.split(" ", 2)
         
         key = parts[1]
