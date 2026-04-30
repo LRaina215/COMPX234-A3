@@ -3,7 +3,7 @@ import threading
 import time
 import sys
 
-def client_task(name, port, value):
+def client_task(name, port, value, ori_line):
     client_socket = None
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,7 +17,9 @@ def client_task(name, port, value):
             print("Server closed connection.")
             return 
         
-        print(f"Reveive: {response}")
+        response_body = response[4:]
+        print(f"{ori_line}: {response_body}")
+        # print(f"Reveive: {response}")
 
     except Exception as e:
         print(f"Error for {name}: {e}")
@@ -133,7 +135,7 @@ def main():
 
             print(f"Finally Protocal Message: {message}")
 
-            client_task("Test", port, message)
+            client_task("Test", port, message, ori_line)
 
 if __name__ == "__main__":
     main()
