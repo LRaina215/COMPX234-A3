@@ -9,11 +9,14 @@ def file_command2protocol_message(line):
 
     # We have three operations, then we need to process four situations(include input invalid)
     if operation == "READ":
-        # if the 
         if len(parts) != 2:
             return None
     
         key = parts[1]
+
+        if len(key) > 970:
+            return None
+        
         body = f"R {key}"
 
     elif operation == "GET":
@@ -21,6 +24,10 @@ def file_command2protocol_message(line):
             return None
         
         key = parts[1]
+
+        if len(key) > 970:
+            return None
+
         body = f"G {key}"
 
     elif operation == "PUT":
@@ -29,6 +36,10 @@ def file_command2protocol_message(line):
         
         key = parts[1]
         value = parts[2]
+
+        if len(f"{key} {value}") > 970:
+            return None
+        
         body = f"P {key} {value}"
 
     else:
@@ -81,11 +92,11 @@ def main():
     print(f"Receive the Host: {host}")
     print(f"Receive the Port: {port}")
 
-    cilent_socket = None
+    client_socket = None
 
     try:
-        cilent_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        cilent_socket.connect((host, port))
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((host, port))
 
         with open(request_file, "r", encoding='utf-8') as f:
             for line in f:
@@ -100,12 +111,13 @@ def main():
                     print(f"{ori_line}: invalid request")
                     continue
                 
-                print(f"Finally Read Line: {ori_line}")
-                print(f"Finally Protocal Message: {message}")
+                # use to debug
+                # print(f"Finally Read Line: {ori_line}")
+                # print(f"Finally Protocal Message: {message}")
 
-                cilent_socket.sendall(message.encode('utf-8'))
+                client_socket.sendall(message.encode('utf-8'))
 
-                response = recv_message(cilent_socket)
+                response = recv_message(client_socket)
 
                 if response is None:
                     print("Server closed connection.")
@@ -115,11 +127,11 @@ def main():
                 print(f"{ori_line}: {response_body}")
 
     except Exception as e:
-        print(f"Cilent error: {e}")
+        print(f"Client error: {e}")
 
     finally:
-        if cilent_socket:
-            cilent_socket.close()
+        if client_socket:
+            client_socket.close()
 
 if __name__ == "__main__":
     main()
