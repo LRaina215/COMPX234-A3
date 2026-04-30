@@ -9,7 +9,9 @@ def handle_client(client_socket, addr):
         message = client_socket.recv(1024).decode('utf-8')
         print(f"Client says: {message}")
 
-        response = response_message(message)
+        command, key, value = process_message(message)
+        print(f"Reveived command from Client = {command}, key={key}, value={value}")
+        # response = response_message(command)
         client_socket.sendall(response.encode('utf-8'))
 
     finally:
@@ -55,6 +57,29 @@ def start_server():
 #         return 123
 #     else:
 #         return "Error"
+
+def process_message(message):
+    body = message[4:]
+
+    command = body[0]
+
+    if message[0] == "R":
+        key = body[2:]
+        return command, key, None
+
+    elif message[0] == "G":
+        key = body[2:]
+        return command, key, None
+
+    elif message[0] == "P":
+        parts = body.split(" ", 2)
+        
+        key = parts[1]
+        value = parts[2]
+        return command, key, value
+    
+    else:
+        return None, None, None
 
 
 if __name__ == "__main__":
