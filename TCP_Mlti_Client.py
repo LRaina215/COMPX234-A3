@@ -3,43 +3,6 @@ import threading
 import time
 import sys
 
-# def client_task(name, port, value, ori_line):
-#     client_socket = None
-#     try:
-#         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#         client_socket.connect(('localhost', port))
-
-#         message = value
-#         client_socket.sendall(message.encode('utf-8'))
-
-#         response = recv_message(client_socket)
-#         if response is None:
-#             print("Server closed connection.")
-#             return 
-        
-#         response_body = response[4:]
-#         print(f"{ori_line}: {response_body}")
-#         # print(f"Reveive: {response}")
-
-#     except Exception as e:
-#         print(f"Error for {name}: {e}")
-
-#     finally:
-#         if client_socket:
-#             client_socket.close()
-
-# def READ(k):
-#     123
-#     return 123
-
-# def GET(k):
-#     123
-#     return 123
-
-# def PUT(k, v):
-#     123
-#     return 123
-
 def file_command2protocol_message(line):
     parts = line.split(" ", 2) # command from file is splited by " " at most 2 times
     operation = parts[0]
