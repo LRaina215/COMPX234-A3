@@ -3,30 +3,30 @@ import threading
 import time
 import sys
 
-def client_task(name, port, value, ori_line):
-    client_socket = None
-    try:
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(('localhost', port))
+# def client_task(name, port, value, ori_line):
+#     client_socket = None
+#     try:
+#         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#         client_socket.connect(('localhost', port))
 
-        message = value
-        client_socket.sendall(message.encode('utf-8'))
+#         message = value
+#         client_socket.sendall(message.encode('utf-8'))
 
-        response = recv_message(client_socket)
-        if response is None:
-            print("Server closed connection.")
-            return 
+#         response = recv_message(client_socket)
+#         if response is None:
+#             print("Server closed connection.")
+#             return 
         
-        response_body = response[4:]
-        print(f"{ori_line}: {response_body}")
-        # print(f"Reveive: {response}")
+#         response_body = response[4:]
+#         print(f"{ori_line}: {response_body}")
+#         # print(f"Reveive: {response}")
 
-    except Exception as e:
-        print(f"Error for {name}: {e}")
+#     except Exception as e:
+#         print(f"Error for {name}: {e}")
 
-    finally:
-        if client_socket:
-            client_socket.close()
+#     finally:
+#         if client_socket:
+#             client_socket.close()
 
 # def READ(k):
 #     123
@@ -97,9 +97,9 @@ def recv_message(sock):
     if header is None:
         return None
     
-    totoal_length = int(header.decode('utf-8')) # Convert the length into integer
+    total_length = int(header.decode('utf-8')) # Convert the length into integer
 
-    rest  = recv_exact(sock, totoal_length - 3) # Receive data (length is `total_length`)
+    rest  = recv_exact(sock, total_length - 3) # Receive data (length is `total_length`)
 
     if rest is None:
         return None
@@ -118,23 +118,45 @@ def main():
     print(f"Receive the Host: {host}")
     print(f"Receive the Port: {port}")
 
-    with open(request_file, "r", encoding='utf-8') as f:
-        for line in f:
-            ori_line = line.strip()
+    cilent_socket = None
 
-            if ori_line == "":
-                continue
+    try:
+        cilent_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cilent_socket.connect((host, port))
 
-            message  = file_command2protocol_message(ori_line)
+        with open(request_file, "r", encoding='utf-8') as f:
+            for line in f:
+                ori_line = line.strip()
 
-            if message is None:
-                print(f"{ori_line}: invalid request")
-                continue
-            
-            print(f"Finally Read Line: {ori_line}")
-            print(f"Finally Protocal Message: {message}")
+                if ori_line == "":
+                    continue
 
-            client_task("Test", port, message, ori_line)
+                message  = file_command2protocol_message(ori_line)
+
+                if message is None:
+                    print(f"{ori_line}: invalid request")
+                    continue
+                
+                print(f"Finally Read Line: {ori_line}")
+                print(f"Finally Protocal Message: {message}")
+
+                cilent_socket.sendall(message.encode('utf-8'))
+
+                response = recv_message(cilent_socket)
+
+                if response is None:
+                    print("Server closed connection.")
+                    break
+
+                response_body = response[4:]
+                print(f"{ori_line}: {response_body}")
+
+    except Exception as e:
+        print(f"Cilent error: {e}")
+
+    finally:
+        if cilent_socket:
+            cilent_socket.close()
 
 if __name__ == "__main__":
     main()
