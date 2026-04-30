@@ -1,5 +1,6 @@
 import socket
 import threading
+import sys
 
 def handle_client(client_socket, addr):
     print(f"New client connected from {addr}")
@@ -17,7 +18,7 @@ def handle_client(client_socket, addr):
 
 def start_server():
     host = 'localhost'
-    port = 6666
+    port = 51234
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((host, port))
