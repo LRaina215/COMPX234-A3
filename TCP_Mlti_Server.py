@@ -1,6 +1,7 @@
 import socket
 import threading
 import sys
+import time
 
 tuple_space = {}
 lock = threading.Semaphore(1)
@@ -56,6 +57,12 @@ def start_server():
     server_socket.bind((host, port))
     server_socket.listen(5)
     print("Server is running and ready to accept multiple client.")
+    
+    print_summary = threading.Thread(
+        target=print_summary_loop,
+        daemon=True
+        )
+    print_summary.start()
 
     try:
         while True:
@@ -167,15 +174,52 @@ def recv_message(sock):
     if header is None:
         return None
     
-    totoal_length = int(header.decode('utf-8')) # Convert the length into integer
+    total_length = int(header.decode('utf-8')) # Convert the length into integer
 
-    rest  = recv_exact(sock, totoal_length - 3) # Receive data (length is `total_length`)
+    rest  = recv_exact(sock, total_length - 3) # Receive data (length is `total_length`)
 
     if rest is None:
         return None
     
     return (header + rest).decode('utf-8')
 
+def print_summary_loop():
+    while True:
+        time.sleep(10)
+
+        lock.acquire()
+
+        try:
+            tuple_count = len(tuple_space)
+
+            if tuple_count == 0:
+                avg_tuple_size = 0
+                avg_key_size = 0
+                avg_value_size = 0
+            else:
+                total_key_size = sum(len(k) for k in tuple_space.keys())
+                total_value_size = sum(len(v) for v in tuple_space.values())
+                total_tuple_size = total_key_size + total_value_size
+
+                avg_tuple_size = total_tuple_size / tuple_count
+                avg_key_size = total_key_size / tuple_count
+                avg_value_size = total_value_size / tuple_count
+
+            print("Tuple Space Summary")
+            print(f"Number of tuples: {tuple_count}")
+            print(f"Average tuple size: {avg_tuple_size:.2f}")
+            print(f"Average key size: {avg_key_size:.2f}")
+            print(f"Average value size: {avg_value_size:.2f}")
+            print(f"Total clients: {stats['clients']}")
+            print(f"Total operations: {stats['operations']}")
+            print(f"Total READs: {stats['reads']}")
+            print(f"Total GETs: {stats['gets']}")
+            print(f"Total PUTs: {stats['puts']}")
+            print(f"Total errors: {stats['errors']}")
+            print("-------------------------------")
+
+        finally:
+            lock.release()
 
 if __name__ == "__main__":
     start_server()
