@@ -103,6 +103,6 @@ def main():
             print(f"Finally Protocal Message: {message}")
 
             client_task("Test", port, message)
-            
+
 if __name__ == "__main__":
     main()

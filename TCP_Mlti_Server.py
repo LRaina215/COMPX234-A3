@@ -16,7 +16,9 @@ def handle_client(client_socket, addr):
         
         response = response_message(command, key, value)
         print(f"Response body: {response}")
-        client_socket.sendall(response.encode('utf-8'))
+
+        full_response = full_response_message(response)
+        client_socket.sendall(full_response.encode('utf-8'))
 
     finally:
         client_socket.close()
@@ -47,6 +49,7 @@ def start_server():
     finally:
         server_socket.close()
 
+# use to process message that sends back to Client as a feedback
 def response_message(command, key, value):
     lock.acquire()
 
@@ -82,6 +85,7 @@ def response_message(command, key, value):
         lock.release()
         return f"ERR invalid command"
     
+# use to process command send from client to derive command, key and value(if has)
 def process_message(message):
     body = message[4:]
 
@@ -104,6 +108,11 @@ def process_message(message):
     
     else:
         return None, None, None
+    
+# add length of response message
+def full_response_message(response):
+    total_length = len(response) + 4
+    return f"{total_length:03d} {response}"
 
 
 if __name__ == "__main__":
