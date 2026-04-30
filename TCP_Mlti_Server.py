@@ -18,7 +18,7 @@ def handle_client(client_socket, addr):
 def start_server():
     host = 'localhost'
     port = 6666
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREA)
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((host, port))
     server_socket.listen(5)
@@ -40,20 +40,20 @@ def start_server():
     finally:
         server_socket.close()
 
-def response_message(message):
-    if message[0] == "R":
-        123
-        return 123
+# def response_message(message):
+#     if message[0] == "R":
+#         123
+#         return 123
 
-    elif message[0] == "G":
-        123
-        return 123
+#     elif message[0] == "G":
+#         123
+#         return 123
 
-    elif message[1] == "P":
-        123
-        return 123
-    else:
-        return "Error"
+#     elif message[1] == "P":
+#         123
+#         return 123
+#     else:
+#         return "Error"
 
 
 if __name__ == "__main__":
