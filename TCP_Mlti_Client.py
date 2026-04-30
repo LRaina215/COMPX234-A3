@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+import sys
 
 # def client_task(name, value):
 #     client_socket = None
@@ -34,21 +35,25 @@ import time
 #     return 123
 
 def main():
-    clients = []
-    i = 0
-    t = threading.Thread(target=client_task, args=(f"Clinet-{i+1}",READ("abcd")))
-    clients.append(t)
-    t = threading.Thread(target=client_task, args=(f"Clinet-{i+1}",GET("abcd")))
-    clients.append(t)
-    t = threading.Thread(target=client_task, args=(f"Clinet-{i+1}",PUT("abcd")))
-    clients.append(t)
+    if len(sys.argv) != 4:
+        print("Using input type: python3 TCP_Mlti_Client.py <hostname> <port> <request_file>")
+        return
+    
+    host = sys.argv[1]
+    port = int(sys.argv[2])
+    request_file = sys.argv[3]
 
-    for t in clients:
-        t.start()
+    print(f"Receive the Host: {host}")
+    print(f"Receive the Port: {port}")
 
-        time.sleep()
+    with open(request_file, "r", encoding='utf-8') as f:
+        for line in f:
+            ori_line = line.strip()
 
-        t.join()
+            if ori_line == "":
+                continue
+
+            print(f"Finally Read Line: {ori_line}")
 
 if __name__ == "__main__":
     main()
