@@ -1,8 +1,7 @@
 import socket
-import threading
-import time
 import sys
 
+# use to convert the command read from file into protocol message that can be send to Server
 def file_command2protocol_message(line):
     parts = line.split(" ", 2) # command from file is splited by " " at most 2 times
     operation = parts[0]
@@ -14,7 +13,7 @@ def file_command2protocol_message(line):
     
         key = parts[1]
 
-        if len(key) > 970:
+        if len(key) > 970: # if the key is too long, the message will exceed 1000 bytes, which is invalid, so we return None
             return None
         
         body = f"R {key}"
@@ -65,6 +64,7 @@ def recv_exact(sock, n):
 
     return data
 
+# use to process command send from client to derive command, key and value(if has)
 def recv_message(sock):
     header = recv_exact(sock, 3)
     
@@ -89,8 +89,13 @@ def main():
     port = int(sys.argv[2])
     request_file = sys.argv[3]
 
-    print(f"Receive the Host: {host}")
-    print(f"Receive the Port: {port}")
+    if port < 50000 or port > 59999:
+        print("Port must be between 50000 and 59999.")
+        return
+
+    # use to debug
+    # print(f"Receive the Host: {host}")
+    # print(f"Receive the Port: {port}")
 
     client_socket = None
 

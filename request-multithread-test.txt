@@ -1,0 +1,6 @@
+PUT b 2
+READ b
+PUT a 999
+READ a
+GET b
+READ b

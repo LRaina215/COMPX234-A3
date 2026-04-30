@@ -28,7 +28,7 @@ def handle_client(client_socket, addr):
             print(f"Client says: {message}")
 
             command, key, value = process_message(message)
-            print(f"Reveived command from Client = {command}, key={key}, value={value}")
+            print(f"Received command from Client = {command}, key={key}, value={value}")
             
             response = response_message(command, key, value)
             print(f"Response body: {response}")
@@ -155,6 +155,7 @@ def full_response_message(response):
     total_length = len(response) + 4
     return f"{total_length:03d} {response}"
 
+# use to convert the command read from file into protocol message that can be send to Server
 def recv_exact(sock, n):
     data = b""
 
@@ -168,6 +169,7 @@ def recv_exact(sock, n):
 
     return data
 
+# use to process command send from client to derive command, key and value(if has)
 def recv_message(sock):
     header = recv_exact(sock, 3)
     
@@ -183,6 +185,7 @@ def recv_message(sock):
     
     return (header + rest).decode('utf-8')
 
+# use to convert the command read from file into protocol message that can be send to Server
 def print_summary_loop():
     while True:
         time.sleep(10)
