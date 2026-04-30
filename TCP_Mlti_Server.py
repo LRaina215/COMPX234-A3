@@ -8,17 +8,22 @@ def handle_client(client_socket, addr):
     print(f"New client connected from {addr}")
 
     try:
-        message = client_socket.recv(1024).decode('utf-8')
-        print(f"Client says: {message}")
+        while True:
+            message = recv_message(client_socket)
+            
+            if message is None:
+                break
 
-        command, key, value = process_message(message)
-        print(f"Reveived command from Client = {command}, key={key}, value={value}")
-        
-        response = response_message(command, key, value)
-        print(f"Response body: {response}")
+            print(f"Client says: {message}")
 
-        full_response = full_response_message(response)
-        client_socket.sendall(full_response.encode('utf-8'))
+            command, key, value = process_message(message)
+            print(f"Reveived command from Client = {command}, key={key}, value={value}")
+            
+            response = response_message(command, key, value)
+            print(f"Response body: {response}")
+
+            full_response = full_response_message(response)
+            client_socket.sendall(full_response.encode('utf-8'))
 
     finally:
         client_socket.close()
@@ -53,16 +58,16 @@ def start_server():
 def response_message(command, key, value):
     lock.acquire()
 
-    if command[0] == "R":
+    if command == "R":
         if key in tuple_space:
             stored_value = tuple_space[key]
             lock.release()
-            return f"OK {key}, {stored_value} read"
+            return f"OK ({key}, {stored_value}) read"
         else:
             lock.release()
-            return f"ERR {key} doesn't exist"
+            return f"ERR {key} does not exist"
 
-    elif command[0] == "G":
+    elif command == "G":
         if key in tuple_space:
             stored_value = tuple_space[key]
             del tuple_space[key] # delete key in space
@@ -72,7 +77,7 @@ def response_message(command, key, value):
             lock.release()
             return f"ERR {key} does not exist"
 
-    elif command[1] == "P":
+    elif command == "P":
         if key in tuple_space:
             lock.release()
             return f"ERR {key} already exists"
@@ -113,6 +118,34 @@ def process_message(message):
 def full_response_message(response):
     total_length = len(response) + 4
     return f"{total_length:03d} {response}"
+
+def recv_exact(sock, n):
+    data = b""
+
+    while len(data) < n: # we need n bytes data, if not enouth, continue receiving until has receive n bytes
+        chunk = sock.recv(n - len(data))
+
+        if not chunk:
+            return None
+        
+        data += chunk
+
+    return data
+
+def recv_message(sock):
+    header = recv_exact(sock, 3)
+    
+    if header is None:
+        return None
+    
+    totoal_length = int(header.decode('utf-8')) # Convert the length into integer
+
+    rest  = recv_exact(sock, totoal_length - 3) # Receive data (length is `total_length`)
+
+    if rest is None:
+        return None
+    
+    return (header + rest).decode('utf-8')
 
 
 if __name__ == "__main__":

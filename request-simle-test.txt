@@ -1,1 +1,4 @@
+PUT a 1
+READ a
+GET a
 READ a

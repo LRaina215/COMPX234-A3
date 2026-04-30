@@ -125,14 +125,13 @@ def main():
             if ori_line == "":
                 continue
 
-            print(f"Finally Read Line: {ori_line}")
-
             message  = file_command2protocol_message(ori_line)
 
             if message is None:
                 print(f"{ori_line}: invalid request")
                 continue
-
+            
+            print(f"Finally Read Line: {ori_line}")
             print(f"Finally Protocal Message: {message}")
 
             client_task("Test", port, message, ori_line)
