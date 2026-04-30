@@ -34,6 +34,45 @@ import sys
 #     123
 #     return 123
 
+def file_command2protocol_message(line):
+    parts = line.split(" ", 2) # command from file is splited by " " at most 2 times
+    operation = parts[0]
+
+    # We have three operations, then we need to process four situations(include input invalid)
+    if operation == "READ":
+        # if the 
+        if len(parts) != 2:
+            return None
+    
+        key = parts[1]
+        body = f"R {key}"
+
+    elif operation == "GET":
+        if len(parts) != 2:
+            return None
+        
+        key = parts[1]
+        body = f"G {key}"
+
+    elif operation == "PUT":
+        if len(parts) != 3:
+            return None
+        
+        key = parts[1]
+        value = parts[2]
+        body = f"P {key} {value}"
+
+    else:
+        return None
+    
+    # calculate the length and construct a full message
+    total_length = len(body) + 4
+    message = f"{total_length:03d} {body}" # Here use :03d let output like, 001 002 003
+    
+    return message
+         
+
+
 def main():
     if len(sys.argv) != 4:
         print("Using input type: python3 TCP_Mlti_Client.py <hostname> <port> <request_file>")
@@ -54,6 +93,14 @@ def main():
                 continue
 
             print(f"Finally Read Line: {ori_line}")
+
+            message  = file_command2protocol_message(ori_line)
+
+            if message is None:
+                print(f"{ori_line}: invalid request")
+                continue
+
+            print(f"Finally Protocal Message: {message}")
 
 if __name__ == "__main__":
     main()
